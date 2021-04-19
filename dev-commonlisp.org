@@ -3,7 +3,7 @@
   :CUSTOM_ID: common-lispのプロジェクト開発メモ
   :END:
 
-Ubuntu+=apt install roswell && ros setup=が前提
+Ubuntu+~apt install roswell && ros setup~が前提
 
 ** 作成
    :PROPERTIES:
@@ -42,7 +42,7 @@ Ubuntu+=apt install roswell && ros setup=が前提
   2 directories, 6 files
 #+END_SRC
 
-=unko.asd=は以下の通り
+~unko.asd~は以下の通り
 
 #+BEGIN_SRC lisp
   (defsystem "unko"
@@ -68,7 +68,7 @@ Ubuntu+=apt install roswell && ros setup=が前提
     :perform (test-op (op c) (symbol-call :rove :run c)))
 #+END_SRC
 
-=src/main.lisp=下にいろいろ書く
+~src/main.lisp~下にいろいろ書く
 
 #+BEGIN_SRC lisp
   ;; 初期状態
@@ -95,15 +95,15 @@ Ubuntu+=apt install roswell && ros setup=が前提
         (error (format nil "~A must be natural number." n))))
 #+END_SRC
 
-とする 外部関数は=:export=に書く
+とする 外部関数は~:export~に書く
 
 ** スクリプト
    :PROPERTIES:
    :CUSTOM_ID: スクリプト
    :END:
 
-=unko/scripts=を作って移動し=ros init <script-name>=とする
-今回は=ros init unko=で=unko.ros=を作成:
+~unko/scripts~を作って移動し~ros init <script-name>~とする
+今回は~ros init unko~で~unko.ros~を作成:
 
 #+BEGIN_SRC sh
   #!/bin/sh
@@ -171,7 +171,7 @@ Ubuntu+=apt install roswell && ros setup=が前提
 
 はい
 
-ちなみに=ros run=のREPLからも呼び出せる
+ちなみに~ros run~のREPLからも呼び出せる
 
 #+BEGIN_SRC sh
   $ ros run
@@ -191,8 +191,8 @@ Ubuntu+=apt install roswell && ros setup=が前提
    :CUSTOM_ID: テスト
    :END:
 
-デフォルトだと=rove=が使われているので初めてなら=ros install rove=などする
-=tests/main.lisp=を編集
+デフォルトだと~rove~が使われているので初めてなら~ros install rove~などする
+~tests/main.lisp~を編集
 
 #+BEGIN_SRC lisp
   ;; 初期状態
