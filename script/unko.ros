@@ -18,5 +18,5 @@ exec ros -Q -- $0 "$@"
       (let ((unkos (unko:unko-n-times (parse-integer (car argv)))))
 	(format t "~{~A~}~%" unkos))
       (progn (princ "$./unko.ros <n times>")
-	     (terpri)))
+	     (terpri))))
 ;;; vim: set ft=lisp lisp:
