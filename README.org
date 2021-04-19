@@ -1,0 +1,43 @@
+* Unko
+  :PROPERTIES:
+  :CUSTOM_ID: unko
+  :END:
+
+test package
+
+** Usage
+   :PROPERTIES:
+   :CUSTOM_ID: usage
+   :END:
+
+#+BEGIN_SRC lisp
+  (unko:unko-n-times 10) ;; #=> ("💩" "💩" "💩" "💩" "💩" "💩" "💩" "💩" "💩" "💩")
+#+END_SRC
+
+** Installation
+   :PROPERTIES:
+   :CUSTOM_ID: installation
+   :END:
+
+(under developing)
+
+** Author
+   :PROPERTIES:
+   :CUSTOM_ID: author
+   :END:
+
+- eggplants (eggplants@github.com)
+
+** Copyright
+   :PROPERTIES:
+   :CUSTOM_ID: copyright
+   :END:
+
+Copyright (c) 2021 eggplants (eggplants@github.com)
+
+** License
+   :PROPERTIES:
+   :CUSTOM_ID: license
+   :END:
+
+Licensed under the LLGPL License.

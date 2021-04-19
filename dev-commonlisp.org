@@ -1,0 +1,285 @@
+* common lispのプロジェクト開発メモ
+  :PROPERTIES:
+  :CUSTOM_ID: common-lispのプロジェクト開発メモ
+  :END:
+
+Ubuntu+=apt install roswell && ros setup=が前提
+
+** 作成
+   :PROPERTIES:
+   :CUSTOM_ID: 作成
+   :END:
+
+今回はプロジェクト名を=unko=とする
+
+#+BEGIN_SRC sh
+  cd ~/.roswell/lisp/quicklisp/local-projects
+  ros run
+  * (ql:quickload :cl-project)
+  * ;; プロジェクト情報は<project-name>.asdに保存されてあとで書き換え可能
+  * (cl-project:make-project #p"./unko"
+    :author "eggplants"
+    :email "eggplants@github.com"
+    :license "LLGPL"
+    :depends-on '( ;; 必要に応じてキーワードシンボルで書く ex) :clack :cl-annot
+    ))
+#+END_SRC
+
+これで諸々が作られる
+
+#+BEGIN_SRC sh
+  $ tree -a unko
+  unko
+  ├── .gitignore
+  ├── README.markdown
+  ├── README.org
+  ├── src
+  │   └── main.lisp
+  ├── tests
+  │   └── main.lisp
+  └── unko.asd
+
+  2 directories, 6 files
+#+END_SRC
+
+=unko.asd=は以下の通り
+
+#+BEGIN_SRC lisp
+  (defsystem "unko"
+    :version "0.1.0"
+    :author "eggplants"
+    :license "LLGPL"
+    :depends-on ()
+    :components ((:module "src"
+                  :components
+                  ((:file "main"))))
+    :description ""
+    :in-order-to ((test-op (test-op "unko/tests"))))
+
+  (defsystem "unko/tests"
+    :author "eggplants"
+    :license "LLGPL"
+    :depends-on ("unko"
+                 "rove")
+    :components ((:module "tests"
+                  :components
+                  ((:file "main"))))
+    :description "Test system for unko"
+    :perform (test-op (op c) (symbol-call :rove :run c)))
+#+END_SRC
+
+=src/main.lisp=下にいろいろ書く
+
+#+BEGIN_SRC lisp
+  ;; 初期状態
+  (defpackage unko
+    (:use :cl))
+  (in-package :unko)
+
+  ;; blah blah blah.
+#+END_SRC
+
+を
+
+#+BEGIN_SRC lisp
+  (defpackage unko
+    (:use :cl)
+    (:export :unko-n-times))
+  (in-package :unko)
+
+  (defun unko-n-times (n)
+    (if (and (plusp n)
+         (integerp n))
+        (loop repeat n
+          collect "💩")
+        (error (format nil "~A must be natural number." n))))
+#+END_SRC
+
+とする 外部関数は=:export=に書く
+
+** スクリプト
+   :PROPERTIES:
+   :CUSTOM_ID: スクリプト
+   :END:
+
+=unko/scripts=を作って移動し=ros init <script-name>=とする
+今回は=ros init unko=で=unko.ros=を作成:
+
+#+BEGIN_SRC sh
+  #!/bin/sh
+  #|-*- mode:lisp -*-|#
+  #|
+  exec ros -Q -- $0 "$@"
+  |#
+  (progn ;;init forms
+    (ros:ensure-asdf)
+    #+quicklisp(ql:quickload '() :silent t)
+    )
+
+  (defpackage :ros.script.unko.3827829371
+    (:use :cl))
+  (in-package :ros.script.unko.3827829371)
+
+  (defun main (&rest argv)
+    (declare (ignorable argv)))
+  ;;; vim: set ft=lisp lisp:
+#+END_SRC
+
+が出来るのでこれを書き換え、
+
+#+BEGIN_EXAMPLE
+  #!/bin/sh
+  #|-*- mode:lisp -*-|#
+  #|
+  exec ros -Q -- $0 "$@"
+  |#
+  (progn ;;init forms
+    (ros:ensure-asdf)
+    #+quicklisp(ql:quickload '(:unko) :silent t)
+    )
+
+  (defpackage :ros.script.unko.3827829371
+    (:use :cl))
+  (in-package :ros.script.unko.3827829371)
+
+  (defun main (&rest argv)
+    (declare (ignorable argv))
+    (if (= 1 (length argv))
+        (let ((unkos (unko:unko-n-times (parse-integer (car argv)))))
+      (format t "~{~A~}~%" unkos))
+        (progn (princ "$./unko.ros <n times>")
+           (terpri)))
+  ;;; vim: set ft=lisp lisp:
+#+END_EXAMPLE
+
+実行してみる
+
+#+BEGIN_SRC sh
+  $ ./unko.ros 1
+  💩
+  $ ./unko.ros 10
+  💩💩💩💩💩💩💩💩💩💩
+  $ ./unko.ros
+  $./unko.ros <n times>
+  $ ./unko.ros -1
+  Unhandled SIMPLE-ERROR in thread #<SB-THREAD:THREAD "main thread" RUNNING
+                                      {1004A581F3}>:
+    -1 must be natural number.
+
+  ...
+#+END_SRC
+
+はい
+
+ちなみに=ros run=のREPLからも呼び出せる
+
+#+BEGIN_SRC sh
+  $ ros run
+  * (ql:quickload :unko)
+  To load "unko":
+    Load 1 ASDF system:
+      unko
+  ; Loading "unko"
+
+  (:UNKO)
+  * (unko:unko-n-times 10)
+  ("💩" "💩" "💩" "💩" "💩" "💩" "💩" "💩" "💩" "💩")
+#+END_SRC
+
+** テスト
+   :PROPERTIES:
+   :CUSTOM_ID: テスト
+   :END:
+
+デフォルトだと=rove=が使われているので初めてなら=ros install rove=などする
+=tests/main.lisp=を編集
+
+#+BEGIN_SRC lisp
+  ;; 初期状態
+  (defpackage unko/tests/main
+    (:use :cl
+          :unko
+          :rove))
+  (in-package :unko/tests/main)
+
+  ;; NOTE: To run this test file, execute `(asdf:test-system :unko)' in your Lisp.
+
+  (deftest test-target-1
+    (testing "should (= 1 1) to be true"
+      (ok (= 1 1))))
+#+END_SRC
+
+を編集して
+
+#+BEGIN_SRC lisp
+  (defpackage unko/tests/main
+    (:use :cl
+          :unko
+          :rove))
+  (in-package :unko/tests/main)
+
+  ;; NOTE: To run this test file, execute `(asdf:test-system :unko)' in your Lisp.
+
+  (deftest test-target-1
+    (testing "n=1"
+         (ok (equal (unko:unko-n-times 1) '("💩")))))
+  (deftest test-target-2
+    (testing "n=2"
+         (ok (equal (unko:unko-n-times 2) '("💩" "💩")))))
+  (deftest test-target-3
+    (testing "n=0"
+         (ok (signals (unko:unko-n-times 0)))))
+  (deftest test-target-4
+    (testing "n<0"
+         (ok (signals (unko:unko-n-times -1)))))
+  (deftest test-target-5
+    (testing "n is not integer"
+         (ok (signals (unko:unko-n-times "a")))))
+#+END_SRC
+
+などとする
+
+#+BEGIN_SRC sh
+  $ ros run
+  * (asdf:test-system :unko)
+  ...
+  ; wrote /home/eggplants/.cache/common-lisp/sbcl-2.1.2-linux-x64/home/eggplants/.roswell/lisp/quicklisp/local-projects/unko/tests/main-tmpAAURSO1.fasl
+  ; compilation finished in 0:00:00.060
+  Testing System unko/tests
+
+  ;; testing 'unko/tests/main'
+    test-target-1
+      n=1
+        ✓ Expect (EQUAL (UNKO:UNKO-N-TIMES 1) '("💩")) to be true.
+    test-target-2
+      n=2
+        ✓ Expect (EQUAL (UNKO:UNKO-N-TIMES 2) '("💩" "💩")) to be true.
+    test-target-3
+      n=0
+        ✓ Expect (UNKO:UNKO-N-TIMES 0) to signal ERROR.
+    test-target-4
+      n<0
+        ✓ Expect (UNKO:UNKO-N-TIMES -1) to signal ERROR.
+    test-target-5
+      n is not integer
+        ✓ Expect (UNKO:UNKO-N-TIMES "a") to signal ERROR.
+
+  ✓ 5 tests completed
+
+  Summary:
+    All 5 tests passed.
+  T
+#+END_SRC
+
+** 貴重な資料
+   :PROPERTIES:
+   :CUSTOM_ID: 貴重な資料
+   :END:
+
+- Common Lisp開発序ノ口 〜プロジェクトの作成と実行〜
+
+  - https://blog.3qe.us/entry/2017/12/12/163000
+
+- Modern Common Lisp: 第6回 Common Lispライブラリを書く
+
+  - http://modern-cl.blogspot.com/2011/07/6-common-lisp.html

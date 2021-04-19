@@ -1,0 +1,22 @@
+#!/bin/sh
+#|-*- mode:lisp -*-|#
+#|
+exec ros -Q -- $0 "$@"
+|#
+(progn ;;init forms
+  (ros:ensure-asdf)
+  #+quicklisp(ql:quickload '(:unko) :silent t)
+  )
+
+(defpackage :ros.script.unko.3827829371
+  (:use :cl))
+(in-package :ros.script.unko.3827829371)
+
+(defun main (&rest argv)
+  (declare (ignorable argv))
+  (if (= 1 (length argv))
+      (let ((unkos (unko:unko-n-times (parse-integer (car argv)))))
+	(format t "~{~A~}~%" unkos))
+      (progn (princ "$./unko.ros <n times>")
+	     (terpri)))
+;;; vim: set ft=lisp lisp:
