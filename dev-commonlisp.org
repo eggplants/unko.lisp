@@ -3,14 +3,14 @@
   :CUSTOM_ID: common-lispのプロジェクト開発メモ
   :END:
 
-Ubuntu+~apt install roswell && ros setup~が前提
+Ubuntu+`apt install roswell && ros setup`が前提
 
 ** 作成
    :PROPERTIES:
    :CUSTOM_ID: 作成
    :END:
 
-今回はプロジェクト名を=unko=とする
+今回はプロジェクト名を`unko`とする
 
 #+BEGIN_SRC sh
   cd ~/.roswell/lisp/quicklisp/local-projects
@@ -42,7 +42,7 @@ Ubuntu+~apt install roswell && ros setup~が前提
   2 directories, 6 files
 #+END_SRC
 
-~unko.asd~は以下の通り
+`unko.asd`は以下の通り
 
 #+BEGIN_SRC lisp
   (defsystem "unko"
@@ -68,7 +68,7 @@ Ubuntu+~apt install roswell && ros setup~が前提
     :perform (test-op (op c) (symbol-call :rove :run c)))
 #+END_SRC
 
-~src/main.lisp~下にいろいろ書く
+`src/main.lisp`下にいろいろ書く
 
 #+BEGIN_SRC lisp
   ;; 初期状態
@@ -95,15 +95,15 @@ Ubuntu+~apt install roswell && ros setup~が前提
         (error (format nil "~A must be natural number." n))))
 #+END_SRC
 
-とする 外部関数は~:export~に書く
+とする 外部関数は`:export`に書く
 
 ** スクリプト
    :PROPERTIES:
    :CUSTOM_ID: スクリプト
    :END:
 
-~unko/scripts~を作って移動し~ros init <script-name>~とする
-今回は~ros init unko~で~unko.ros~を作成:
+`unko/scripts`を作って移動し`ros init <script-name>`とする
+今回は`ros init unko`で`unko.ros`を作成:
 
 #+BEGIN_SRC sh
   #!/bin/sh
@@ -171,7 +171,7 @@ Ubuntu+~apt install roswell && ros setup~が前提
 
 はい
 
-ちなみに~ros run~のREPLからも呼び出せる
+ちなみに`ros run`のREPLからも呼び出せる
 
 #+BEGIN_SRC sh
   $ ros run
@@ -186,13 +186,30 @@ Ubuntu+~apt install roswell && ros setup~が前提
   ("💩" "💩" "💩" "💩" "💩" "💩" "💩" "💩" "💩" "💩")
 #+END_SRC
 
+完成したら`ros build unko.ros`でシングルバイナリにコンパイルできる(要`ros install sbcl`)
+
+#+BEGIN_SRC sh
+  $ ros build unko.ros
+  WARNING: :SB-EVAL is no longer present in *FEATURES*
+  compressed 0 bytes into 8 at level -1
+  compressed 32768 bytes into 280 at level -1
+  compressed 27164672 bytes into 6432588 at level -1
+  compressed 1998848 bytes into 569005 at level -1
+  compressed 11829248 bytes into 3800959 at level -1
+  $ ls
+  unko  unko.ros
+  $ file unko
+  unko: ELF 64-bit LSB shared object, x86-64, version 1 (SYSV), dynamically linked, interpreter /lib64/ld-linux-x86-64.so.2, BuildID[sha1]=ecf742aabb2d13b76cbb7c5000e88c50398b4f22, for GNU/Linux 3.2.0, with debug_info, not stripped
+#+END_SRC
+
 ** テスト
    :PROPERTIES:
    :CUSTOM_ID: テスト
    :END:
 
-デフォルトだと~rove~が使われているので初めてなら~ros install rove~などする
-~tests/main.lisp~を編集
+デフォルトだと`rove`が使われているので初めてなら`ros install rove`などする
+
+`tests/main.lisp`を編集
 
 #+BEGIN_SRC lisp
   ;; 初期状態
